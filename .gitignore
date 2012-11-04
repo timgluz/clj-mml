@@ -5,7 +5,7 @@
 pom.xml
 *.jar
 *.class
-*.dll
+.dll
 *.pdb
 *.exe
 .lein-deps-sum

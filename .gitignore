@@ -1,6 +1,5 @@
 /target
-/lib
-/data
+/data/*
 /classes
 /checkouts
 pom.xml

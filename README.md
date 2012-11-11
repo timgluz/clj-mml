@@ -1,6 +1,6 @@
 # clj-mml
 
-It will be a ClojureCLR library for MyMediaLite, simple and fast recommender system . 
+It will be a ClojureCLR library for MyMediaLite, simple and fast recommender system. 
 Visit their homepage: http://www.ismll.uni-hildesheim.de/mymedialite/index.html .
 
 
@@ -12,7 +12,7 @@ Contact: @timgluz
 
 ## Prerequirements
 
-I expect you have already installed given tools:
+I expect that you  already have installed given tools/libraries:
 
   * Mono3 - http://www.mono-project.com/Main_Page
 
@@ -26,7 +26,7 @@ I expect you have already installed given tools:
 
 ## Usage
 
-**Tested on OsX10.6, Mono3**. 
+**Tested on OsX10.6, Mono3. should work also on Windows and Linux**. 
 
 1. Clone this project:
   git clone https://github.com/timgluz/clj-mml.git
@@ -37,12 +37,12 @@ I expect you have already installed given tools:
 
 3. Run project:
 
-  lein clr run -m clj-mml.core ml-100k/u1.data
+  lein clr run -m clj-mml.core ml-100k/u1.base
 
 
 
 ## License
 
-Copyright © 2012 FIXME
+Copyright © 2012 TimGluz
 
 Distributed under the Eclipse Public License, the same as Clojure.

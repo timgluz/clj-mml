@@ -2,42 +2,40 @@
 (assembly-load-file "lib/mymedialite/MyMediaLite.dll")
 
 (ns clj-mml.core
-  (:require [clj-mml.read :as read]
-            [clj-mml.recommender :as recommender])
-  (:gen-class)
-  )
-
-(defn example-rating-prediction [training-file]
-  "Rating prediction"
-  (let [oracle (recommender/init :useritembaseline)
-        dt (read/ratingdata training-file)]
-    (do 
-      (recommender/train oracle dt)
-      ;(recommender/evalute oracle test-dt)
-      (recommender/predict oracle 1 1)
-      )))
+  (:require [clojure.string :as string]
+            [clj-mml.examples.ex1-ratingprediction :as example1]
+            [clj-mml.examples.ex2-itemprediction :as example2])
+  (:gen-class))
 
 
-(defn example-item-prediction [training-file]
-  "Item prediction from positive-only feedback"
-  (let [oracle (recommender/init :mostpopular)
-        dt (read/itemdata training-file)]
-    (do 
-      (recommender/train oracle dt)
-      ;(recommender/evaluate oracle test-dt)
-      (recommender/predict oracle 1 1)
-      )))
+(defn get-class [model]
+  "Return type of recommender"
+  (let [class-name (str (class model))]
+    (->> 
+      (string/split class-name #"\.")
+      (#(nth % 2)) ;classname is 3rd element
+      (string/lower-case)
+      (keyword)
+    )))
+
+(defn type? [model recommender-type]
+  "Tests does given model is same type"
+  (= (get-class model)
+     (keyword recommender-type)))
+
 
 (defn -main [& args]
-  (let [training-file (str (first args))]
+  "Runs examples "
+  (let [training-file (str (first args))
+        test-file "data/u1.test"]
     (do
       (println (str "Using training file: `" training-file "`" ))
-      (println (str "User #1 will rate product nr.1 " 
-                    (example-rating-prediction training-file)))
-      (println (str "Recommendating item.1  for user.1"  
-                    (example-item-prediction training-file)))
+      (println (str "User #1 will rate product nr.1 "
+                    (example1/run training-file test-file 1 1)))
+      ;(println (str "Recommendating item.1  for user.1"
+      ;              (example2/run training-file test-file 1 1)))
       )))
 
-(defn demo-run [] 
+(defn demo-run []
     (-main "data/u1.base" "data/u1.test"))
 

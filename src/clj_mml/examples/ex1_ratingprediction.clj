@@ -1,6 +1,6 @@
 (ns clj-mml.examples.ex1-ratingprediction
   (:use [clj-mml.recommenders.useritembaseline])
-  (:require [clj-mml.read :as read]))
+  (:require [clj-mml.io.read :as read]))
 
 
 (defn run [training-file, test-file, user-id, item-id]

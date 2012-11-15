@@ -17,7 +17,7 @@
 
 ;TODO: test class of model, before accessing value
 (defn get-data [model]
-  (.Rating model))
+  (.Ratings model))
 
 (defn has-data? [model]
   "Tests does model have data"
@@ -41,13 +41,16 @@
   (.Iterate model))
 
 (defn train
+  "trains given model. After successfull training will return model else just nil"
   ([model] 
     (if (has-data? model)
       (do 
         (.Train model)
         model)
-      (println "Cant train model without data.")
-      ))
+      (do 
+        (println "Cant train model without data.")
+        nil
+        )))
   ([model training-data] 
     (do 
       (set-data model training-data)
@@ -97,16 +100,16 @@
   "Builds proper getter-name for C# objects"
   (symbol (format ".%s" (to-str property))))
 
-(defmacro set-param [model property value]
+(defmacro set-property [model property value]
   (let [method-name (build-setter-name property)]
     `(~method-name ~model ~value)))
 
-;(macroexpand-1 '(set-param "model" :MaxThreads 41))
+;(macroexpand-1 '(set-property "model" :MaxThreads 41))
 
-(defmacro get-param [model property]
+(defmacro get-property [model property]
   `(~(build-getter-name property) ~model))
 
-;(macroexpand-1 '(get-param "model" :MaxThreads))
+;(macroexpand-1 '(get-property "model" :MaxThreads))
 
 ; Functions to manage data of the model
 (defn retrain-item [model item-id]

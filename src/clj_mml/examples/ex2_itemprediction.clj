@@ -1,6 +1,6 @@
 (ns clj-mml.examples.ex2-itemprediction
   (:require [clj-mml.recommenders.mostpopular :as recommender]
-            [clj-mml.read :as read]))
+            [clj-mml.io.read :as read]))
 
 (defn run [training-file test-file user-id item-id]
   "Example: Item prediction from positive only feedback"

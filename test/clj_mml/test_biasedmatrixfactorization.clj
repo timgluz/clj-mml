@@ -1,3 +1,7 @@
+;------------------------------------------------------------------------------
+; Tests for BiasedMatrixFactorization
+; ----------------------------------------------------------------------------
+
 (ns clj-mml.test-biasedmatrixfactorization
   (:use [clojure.test]
         [clj-mml.core])

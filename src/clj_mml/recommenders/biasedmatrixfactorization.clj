@@ -1,17 +1,17 @@
-(ns clj-mml.recommenders.biasedmatrixfactorization
-  (:import [MyMediaLite.RatingPrediction BiasedMatrixFactorization]))
-
 ; -----------------------------------------------------------------------------
 ; BiasedMatrixFactorization
 ; Matrix factorization model for item prediction (ranking) optimized for BPR,
 ; which reduces ranking to pairwise classification. 
 ; ----------------------------------------------------------------------------
 
-; -- HELPERS --------------------------
-(defn predictable? [model user-id item-id]
-  "Checks whether a useful prediction can be made for a given user-item combination"
-  (.CanPredict model user-id item-id))
+(ns clj-mml.recommenders.biasedmatrixfactorization
+    (:use  [clj-mml.recommenders.core :refer :all])
+    (:import [MyMediaLite.RatingPrediction BiasedMatrixFactorization])
+  )
 
+(in-ns 'clj-mml.recommender.core)
+
+; -- HELPERS --------------------------
 (defn set-data [model ratings]
   (set! (.Ratings model) ratings))
 
@@ -35,10 +35,11 @@
       bmf
       )))
 
-(defn iterate [model]
-  "Performs one iteration of stochastic gradient ascent over the training data.
-  One iteration is samples number of positive entries in the training matrix."
-  (.Iterate model))
+; name collision , can we refactor out core? 
+;(defn iterate [model]
+;  "Performs one iteration of stochastic gradient ascent over the training data.
+;  One iteration is samples number of positive entries in the training matrix."
+;  (.Iterate model))
 
 (defn train
   "trains given model. After successfull training will return model else just nil"
@@ -86,39 +87,13 @@
   "Computes the regularized loss"
   (.ComputeObjective model))
 
-(defn to-str [value]
-  "transform value to string, if and handle keywords"
-  (if (keyword? value)
-    (name value)
-    (str value)))
-
-(defn build-setter-name [property]
-  "Builds proper setter-name for C# objects"
-  (symbol (format ".set_%s" (to-str property))))
-
-(defn build-getter-name [property]
-  "Builds proper getter-name for C# objects"
-  (symbol (format ".%s" (to-str property))))
-
-(defmacro set-property [model property value]
-  (let [method-name (build-setter-name property)]
-    `(~method-name ~model ~value)))
-
-;(macroexpand-1 '(set-property "model" :MaxThreads 41))
-
-(defmacro get-property [model property]
-  `(~(build-getter-name property) ~model))
-
-;(macroexpand-1 '(get-property "model" :MaxThreads))
-
-; Functions to manage data of the model
+; -- Functions to manage data of the model
 (defn retrain-item [model item-id]
   "Retrains the latent factors of a given item."
   (.RetrainItem model item-id))
 
 (defn retrain-user [model user-id]
   (.RetrainItem model user-id))
-
 
 (defn add-ratings [model ratings-obj]
   "Adds new rating object to model and preforms incremental training"
@@ -135,21 +110,4 @@
 (defn remove-user [model user-id]
   "Remove all feedback by one user."
   (.RemoveUser model user-id))
-
-; -- manage model -----------------
-  
-;TODO: refactor those to main namespace ~ recommender.clj 
-
-(defn clone [model]
-  "Creates a shallow copy of the object"
-  (.Clone model))
-
-(defn save [model filename]
-  "Saves the model parameters to a file"
-  (.SaveModel model filename))
-
-(defn load [model filename]
-  "Get the model parameters from a file."
-  (.LoadModel model filename))
-
 

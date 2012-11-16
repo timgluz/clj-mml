@@ -7,23 +7,6 @@
             [clj-mml.examples.ex2-itemprediction :as example2])
   (:gen-class))
 
-
-(defn get-class [model]
-  "Return type of recommender"
-  (let [class-name (str (class model))]
-    (->> 
-      (string/split class-name #"\.")
-      (#(nth % 2)) ;classname is 3rd element
-      (string/lower-case)
-      (keyword)
-    )))
-
-(defn type? [model recommender-type]
-  "Tests does given model is same type"
-  (= (get-class model)
-     (keyword recommender-type)))
-
-
 (defn -main [& args]
   "Runs examples "
   (let [training-file (str (first args))

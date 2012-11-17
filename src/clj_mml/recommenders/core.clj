@@ -7,7 +7,6 @@
 (assembly-load-file "lib/mymedialite/MyMediaLite.dll")
 
 (ns clj-mml.recommenders.core
-  (:refer-clojure :exclude [test])
   (:require [clojure.string :as string]))
 
 (defprotocol RecommenderProtocol
@@ -25,52 +24,23 @@
   (to-string [this] "returns string representation of the recommender")
   (train [this] "Learn the model parameters of the recommender from the training data.")
   )
-
-(defrecord MMLRecommender [model settings]
-  RecommenderProtocol
-  (can-predict? [this user-id item-id] 
-    (.CanPredict (:model this) user-id item-id))
-  (load-model [this filename] (.LoadModel (:model this)))
-  (recommend [this user-id settings]
-      (.Recommend (:model this) user-id -1 nil nil))
-  (to-string [this] (.ToString (:model this)))
-  (train [this] (.Train (:model this)))
-  )
-
-(defn get-class [model]
-  "Return type of recommender"
-  (let [class-name (str (class model))]
-    (->> 
-      (string/split class-name #"\.")
-      (#(nth % 2)) ;classname is 3rd element
-      (string/lower-case)
-      (keyword)
-    )))
-
-(defn type? [model recommender-type]
-  "Tests does given model is same type"
-  (= (get-class model)
-     (keyword recommender-type)))
-
-
-(defn predictable? [model user-id item-id]
-  "Checks whether a useful prediction can be made for a given user-item combination"
-  (.CanPredict model user-id item-id))
-
-; -- get/setters model attributes ----------------------------
-(defn to-str [value]
-  "transform value to string, if and handle keywords"
-  (if (keyword? value)
-    (name value)
-    (str value)))
-
+(defprotocol RatingPredictorProtocol
+  "Generic protocol for simple predictors"
+  (get-ratings [this] "returns ratings, which were used for last training")
+  (set-ratings [this ratings] "sets rating-data for given predictor")
+  (get-max-rating [this] "gets maximum rating of predictor")
+  (set-max-rating [this value] "sets maximum rating of predictor")
+  (get-data [this] "Wrapper function to unify data reading")
+  (set-data [this ratings] "Wrapper function to unify data setting") 
+)
+;; macros  -----------------------------
 (defn build-setter-name [property]
   "Builds proper setter-name for C# objects"
-  (symbol (format ".set_%s" (to-str property))))
+  (symbol (format ".set_%s" (name property))))
 
 (defn build-getter-name [property]
   "Builds proper getter-name for C# objects"
-  (symbol (format ".%s" (to-str property))))
+  (symbol (format ".%s" (name property))))
 
 (defmacro set-property [model property value]
   (let [method-name (build-setter-name property)]
@@ -83,18 +53,4 @@
 
 ;(macroexpand-1 '(get-property "model" :MaxThreads))
 
-
-; -- manage model -----------------
-  
-(defn clone [model]
-  "Creates a shallow copy of the object"
-  (.Clone model))
-
-(defn save-params [model filename]
-  "Saves the model parameters to a file"
-  (.SaveModel model filename))
-
-(defn load-params [model filename]
-  "Get the model parameters from a file."
-  (.LoadModel model filename))
 

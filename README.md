@@ -39,17 +39,11 @@ I expect that you  already have installed given tools&libraries:
 4. Run tests:
 
  lein clr test 
-
-or run just one specific test
-
- lein clr test 'clj-mml.test-ratingprediction
+ lein clr test clj-mml.test-ratingprediction
 
 5. Run project:
 
-  lein clr run -m clj-mml.core data/u1.base
-
- or use shorter notation:
-
+ lein clr run -m clj-mml.core data/u1.base
  lein clr run data/u1.base
 
 

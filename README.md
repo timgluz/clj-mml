@@ -3,10 +3,6 @@
 It will be a ClojureCLR library for MyMediaLite, simple and fast recommender system.
 Visit their homepage: http://www.ismll.uni-hildesheim.de/mymedialite/index.html .
 
-
-This project currently includes just  simple usage examples to get MyMediaLite run.
-
-
 Contact: @timgluz
 
 
@@ -24,7 +20,7 @@ I expect that you  already have installed given tools/libraries:
 
 
 
-## Usage
+## Quick run
 
 **Tested on OsX10.6, Mono3. should work also on Windows and Linux**. 
 
@@ -36,12 +32,46 @@ I expect that you  already have installed given tools/libraries:
 
   curl --remote-name http://www.grouplens.org/system/files/ml-100k.zip && unzip ml-100k.zip
 
-3. Run project:
+3. Run project (currently broken, will fix very soon):
 
   lein clr run -m clj-mml.core ml-100k/u1.base
 
-Also look into examples & test directory.
 
+## Example usage:
+
+```Clojure
+
+  ;example usage on REPL
+  (require  '[clj-mml.recommenders.ratingprediction :as ratingprediction]
+            '[clj-mml.io.read :as read])
+   
+  (def training-dt (read/ratingdata "data/u1.base"))
+  (def params {:model :UserItemBaseline})
+  (def oracle (ratingprediction/init params))
+
+ (read/size training-dt)
+ (.to-string oracle)
+ ;;can we can predict without data?
+ (.can-predict? oracle 1 1)
+ ;; initialize rating data
+ (.set-data oracle training-dt)
+ (.get-data oracle)
+ (.can-predict? oracle 1 1) 
+  
+ (.train oracle)
+  
+ ;;or use original method names
+ (.set-ratings oracle training-dt)
+ (= (read/size (.get-ratings oracle))
+    (read/size training-dt))
+
+ ;; or access methods & values via raw CLR interop:
+ (.ToString (:model oracle))
+ (.get_MaxRating (:model oracle))
+ (.set_MaxRating (:model oracle) 10)
+ (.get_MaxRating (:model oracle))
+
+```
 
 ## License
 

@@ -3,8 +3,7 @@
 
 (ns clj-mml.core
   (:require [clojure.string :as string]
-            [clj-mml.examples.ex1-ratingprediction :as example1]
-            [clj-mml.examples.ex2-itemprediction :as example2])
+            [clj-mml.examples.ratingprediction :as ex])
   (:gen-class))
 
 (defn -main [& args]
@@ -13,8 +12,7 @@
         test-file "data/u1.test"]
     (do
       (println (str "Using training file: `" training-file "`" ))
-      (println (str "User #1 will rate product nr.1 "
-                    (example1/run training-file test-file 1 1)))
+      (ex/example training-file test-file)
       ;(println (str "Recommendating item.1  for user.1"
       ;              (example2/run training-file test-file 1 1)))
       )))

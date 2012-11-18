@@ -16,14 +16,13 @@
   (load-model [this filename] "Get the model parameters from file")
   (predict [this user-id item-id] "Predict rating or score for a given user-item 
                               combination")
-  (recommend [this user-id settings] "Recommends items for a given user.
-                                     If you want to use default settings, 
-                                     then use nil, else append map with keys, 
-                                     like :n, :ignore-items, :candidate-items")
+  (recommend [this user-id] [this user-id n] [this user-id n ignored_items]
+             [this user-id n ignored_items candidate_items]
+             "Recommends items for a given user.")
   (save-model [this filename] "Save the model parameters to a file.")
   (to-string [this] "returns string representation of the recommender")
-  (train [this] "Learn the model parameters of the recommender from the training data.")
-  )
+  (train [this] "Learn the model parameters of the recommender from the training data."))
+
 (defprotocol RatingPredictorProtocol
   "Generic protocol for simple predictors"
   (get-ratings [this] "returns ratings, which were used for last training")
@@ -33,6 +32,14 @@
   (get-data [this] "Wrapper function to unify data reading")
   (set-data [this ratings] "Wrapper function to unify data setting") 
 )
+
+(defprotocol ResultProtocol 
+  "Protocol to handle results of recommendations"
+  (size [this] "returns count of results")
+  (nth-result [this row-nr] "Returns nth row, which are transformed to list")
+  (to-vect [this] "Turns results to native Clojure vector")
+  (to-map [this] "Turns list of results to native Clojure map")
+  )
 ;; macros  -----------------------------
 (defn build-setter-name [property]
   "Builds proper setter-name for C# objects"

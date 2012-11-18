@@ -11,15 +11,42 @@
                 FactorWiseMatrixFactorization, GlobalAverage, 
                 ItemAverage, ItemKNN, UserItemBaseline]))
 
-(defrecord RatingRecommender [model settings]
+(defn row2vect [row]
+  [(.Item1 row) (.Item2 row)])
+ 
+(defrecord RatingResults [rows]
+  ResultProtocol
+  (size [this] (count (:rows this)))
+  (nth-result [this row-nr] 
+    (row2vect
+      (nth (:rows this) row-nr)))
+  (to-vect [this] (map row2vect (seq (:rows this))))
+  (to-map [this] 
+    (reduce 
+        (fn [coll, row] 
+          (merge coll {(.Item1 row) (.Item2 row)}))
+          {} (seq (:rows this)))
+    ))
+
+(defrecord RatingRecommender [model configs]
   RecommenderProtocol
+  (load-model [this filename] (.LoadModel (:model this)))
+  (train [this] 
+    (do 
+      (.Train (:model this))
+      this))
   (can-predict? [this user-id item-id] 
     (.CanPredict (:model this) user-id item-id))
-  (load-model [this filename] (.LoadModel (:model this)))
-  (recommend [this user-id settings]
-      (.Recommend (:model this) user-id -1 nil nil))
+  (predict [this user-id item-id] 
+    (.Predict (:model this) user-id item-id))
+  (recommend [this user-id] (recommend this user-id -1 nil nil))
+  (recommend [this user-id n] (recommend this user-id n nil nil))
+  (recommend [this user-id n ignored_items] (recommend this user-id n ignored_items nil))
+  (recommend [this user-id n ignored_items candidate_items] 
+    (->RatingResults  
+      (.Recommend (:model this) user-id n ignored_items candidate_items)
+    ))
   (to-string [this] (.ToString (:model this)))
-  (train [this] (.Train (:model this)))
   RatingPredictorProtocol
   (get-ratings [this] (.Ratings (:model this)))
   (set-ratings [this ratings] (set! (.Ratings (:model this)) ratings))
@@ -36,20 +63,21 @@
     (def init (partial base-init (ItemAverage.))) ;; in child namespaces
   "
   ([Model] (map->RatingRecommender {:model Model}))
-  ([Model training-data] 
-      (let [oracle (base-init Model)]
-        (.set-data oracle training-data)
+  ([Model configs] 
+      (let [oracle (->RatingRecommender Model, configs)]
+         (when (contains? configs :training-data)
+            (.set-data oracle (:training-data configs)))
         oracle
       )))
 
 (defmulti init :model)
-(defmethod init :BiasedMatrixFactorization  [params]
-  (base-init (BiasedMatrixFactorization.)))
-(defmethod init :BiPolarSlopeOne [params]
-  (base-init (BiPolarSlopeOne.)))
-(defmethod init :UserItemBaseline [params]
-  (base-init (UserItemBaseline.)))
-(defmethod init :default [params] 
-  (println "Ouch, you forgot something: " params ))
+(defmethod init :BiasedMatrixFactorization  [configs]
+  (base-init (BiasedMatrixFactorization.) configs))
+(defmethod init :BiPolarSlopeOne [configs]
+  (base-init (BiPolarSlopeOne.) configs))
+(defmethod init :UserItemBaseline [configs]
+  (base-init (UserItemBaseline.) configs))
+(defmethod init :default [configs] 
+  (println "Ouch, you forgot something: " configs ))
 
 

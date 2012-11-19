@@ -8,7 +8,7 @@ Contact: @timgluz
 
 ## Prerequirements
 
-I expect that you  already have installed given tools/libraries:
+I expect that you  already have installed given tools&libraries:
 
   * Mono3 - http://www.mono-project.com/Main_Page
 
@@ -30,24 +30,34 @@ I expect that you  already have installed given tools/libraries:
 
 2. Download example data: 
 
-  curl --remote-name http://www.grouplens.org/system/files/ml-100k.zip && unzip ml-100k.zip
+ curl --remote-name http://www.grouplens.org/system/files/ml-100k.zip && unzip ml-100k.zip
+  
+3. Rename ml-100k directory to data:
 
-3. Run project (currently broken, will fix very soon):
+ mv ml-100k data
 
-  lein clr run -m clj-mml.core ml-100k/u1.base
+4. Run tests:
+
+ lein clr test 
+ lein clr test clj-mml.test-ratingprediction
+
+5. Run project:
+
+ lein clr run -m clj-mml.core data/u1.base
+ lein clr run data/u1.base
 
 
 ## Example usage:
 
 ```Clojure
 
-  ;example usage on REPL
-  (require  '[clj-mml.recommenders.ratingprediction :as ratingprediction]
-            '[clj-mml.io.read :as read])
+ ;example usage on REPL
+ (require  '[clj-mml.recommenders.ratingprediction :as ratingprediction]
+           '[clj-mml.io.read :as read])
    
-  (def training-dt (read/ratingdata "data/u1.base"))
-  (def params {:model :UserItemBaseline})
-  (def oracle (ratingprediction/init params))
+ (def training-dt (read/ratingdata "data/u1.base"))
+ (def params {:model :UserItemBaseline})
+ (def oracle (ratingprediction/init params))
 
  (read/size training-dt)
  (.to-string oracle)
@@ -59,15 +69,23 @@ I expect that you  already have installed given tools/libraries:
  (.can-predict? oracle 1 1) 
   
  (.train oracle)
-  
- ;;or use original method names
+ 
+ ;;or manipulate ratings via original names
  (.set-ratings oracle training-dt)
  (= (read/size (.get-ratings oracle))
     (read/size training-dt))
 
+ ;; recommendations
+ (def results (.recommend oracle 1 5)) ;; just return 5recommendation for user.1
+ (.size results)
+ (.to-vect results) ;; transform results to Clojure vector
+ (.to-map results) ;; to Clojure hash-map
+
+ (.Item1  (first (:rows results))) ;; raw access to results tuple 
+
  ;; or access methods & values via raw CLR interop:
  (.ToString (:model oracle))
- (.get_MaxRating (:model oracle))
+ (.get_MaxRating (:model oracle)) 
  (.set_MaxRating (:model oracle) 10)
  (.get_MaxRating (:model oracle))
 

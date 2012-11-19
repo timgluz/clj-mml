@@ -4,6 +4,7 @@
             [clj-mml.io.read :as read]))
 
 (def not-nil? (comp not nil?))
+(def contains-not? (comp not contains?))
 (def training-data (read/ratingdata "data/u1.base"))
 (def test-data (read/ratingdata "data/u1.test"))
 
@@ -36,7 +37,20 @@
     (testing "recommending with limited results"
       (is (= 5
              (.size (.recommend oracle 1 5)))))
-    ;(testing "recommending with ignored_items")
-    ;(testing "recommending with candidate_items")
-    ;(testing "recommending with all parameters are set")
+    (testing "recommending with ignored_items"
+      (is (contains-not? 
+            (.to-map (.recommend oracle 1 5 [169])) 
+            169
+          )))
+    (testing "recommending with candidate_items"
+      (is (contains? 
+            (.to-map (.recommend oracle 1 5 nil [64, 169, 318]))
+            169
+          )))
+    (testing "recommending with all parameters are set"
+      (is (-> 
+            (.recommend oracle 1 5 [169][345 567 169 318 483 64])
+            (.to-map)
+            (#(contains-not? %1 169))
+          )))
   ))

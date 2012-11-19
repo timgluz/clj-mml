@@ -60,4 +60,17 @@
 
 ;(macroexpand-1 '(get-property "model" :MaxThreads))
 
+(defn new-generic-list []
+  (let [lst (|System.Collections.Generic.List`1[System.Int32]|.)]
+    lst))
+
+(defmulti list->generic (fn [x] (seq? (seq x))))
+(defmethod list->generic false [lst] lst)
+(defmethod list->generic true  [lst]
+  "Transforms Clojure list to Generic.IList<System.Int32>"
+  (let [generic-coll (new-generic-list)]
+    (dorun 
+      (map (fn [item] (.Add generic-coll item)) lst))
+    generic-coll
+    ))
 

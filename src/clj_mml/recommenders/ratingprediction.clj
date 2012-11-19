@@ -43,9 +43,11 @@
   (recommend [this user-id n] (recommend this user-id n nil nil))
   (recommend [this user-id n ignored_items] (recommend this user-id n ignored_items nil))
   (recommend [this user-id n ignored_items candidate_items] 
-    (->RatingResults  
-      (.Recommend (:model this) user-id n ignored_items candidate_items)
-    ))
+    (let [ignored_items (list->generic ignored_items)
+          candidate_items (list->generic candidate_items)]
+      (->RatingResults  
+        (.Recommend (:model this) user-id n ignored_items candidate_items))
+      ))
   (to-string [this] (.ToString (:model this)))
   RatingPredictorProtocol
   (get-ratings [this] (.Ratings (:model this)))

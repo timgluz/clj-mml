@@ -4,6 +4,7 @@
 
 (def training-dt (read/ratingdata "data/u1.base"))
 (def params {:model :UserItemBaseline})
+
 (def oracle (ratingprediction/init params))
 
 (read/size training-dt)
@@ -35,3 +36,11 @@
 (.get_MaxRating (:model oracle))
 (.set_MaxRating (:model oracle) 10)
 (.get_MaxRating (:model oracle))
+
+(defmacro new-generic-list [datatype]
+  (let [constructor (format "|System.Collections.Generic.List`1[%s]|" 
+                              (str datatype))]
+    `(new ~(symbol constructor))))
+(macroexpand-1 '(new-generic-list System.Int32))
+
+

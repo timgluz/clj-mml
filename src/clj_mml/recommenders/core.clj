@@ -44,21 +44,27 @@
 (defn build-setter-name [property]
   "Builds proper setter-name for C# objects"
   (symbol (format ".set_%s" (name property))))
-
-(defn build-getter-name [property]
-  "Builds proper getter-name for C# objects"
-  (symbol (format ".%s" (name property))))
-
 (defmacro set-property [model property value]
   (let [method-name (build-setter-name property)]
     `(~method-name ~model ~value)))
 
 ;(macroexpand-1 '(set-property "model" :MaxThreads 41))
 
+(defn build-getter-name [property]
+  "Builds proper getter-name for C# objects"
+  (symbol (format ".get_%s" (name property))))
+
 (defmacro get-property [model property]
   `(~(build-getter-name property) ~model))
 
 ;(macroexpand-1 '(get-property "model" :MaxThreads))
+(defprotocol ModelPropertyProtocol 
+  "Protocol that handles get/setters of given model"
+  (properties [this] "Returns set of possible properties")
+  (getp [this property] "Access to models properties")
+  (setp [this property value] "Set value of public property.")
+  ;(- [this property] [this property value] "get/setters shorthand notation")
+  )
 
 (defn new-generic-list []
   (let [lst (|System.Collections.Generic.List`1[System.Int32]|.)]

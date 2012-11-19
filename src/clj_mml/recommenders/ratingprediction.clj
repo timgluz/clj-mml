@@ -56,7 +56,28 @@
   (set-max-rating [this value] (.set_MaxRating (:model this) value))
   (get-data [this] (get-ratings this))
   (set-data [this value] (set-ratings this value))
-  )
+  ModelPropertyProtocol
+  (properties [this] 
+    (let [ props  (-> (:model this) (.GetType)(.GetProperties))]
+      (set 
+        (map (fn [prop] (keyword (.Name prop))) 
+          props))))
+  (getp [this property]
+    (if (contains? (properties this) property)
+      (let [prop (-> (:model this) (.GetType) (#(.GetProperty %1 (name property))))]
+        (.GetValue prop (:model this)))
+      (println "Model dont have property: " property)))
+  (setp [this property value]
+    (if (contains? (properties this) property)
+      (let [klass (-> (:model this)(.GetType))
+            prop (.GetProperty klass (name property))]
+        (if (true? (.CanWrite prop))
+          (do 
+            (.SetValue prop (:model this) value nil)
+            (.GetValue prop (:model this)))
+          (println "Property `" property "`isnot mutable.")
+        ))
+      (println "Property: " property " dont exists."))))
 
 (defn base-init
   "Base initiliazer, which will be extended by child namespaces.

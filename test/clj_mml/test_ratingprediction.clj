@@ -54,3 +54,14 @@
             (#(contains-not? %1 169))
           )))
   ))
+
+(deftest recommender-properties
+  (let [configs {:model :UserItemBaseline}
+        oracle (ratingprediction/init configs)]
+    (testing "access to propertynames"
+      (is (every? (.properties oracle) [:MaxRating :MinRating :NumIter])))
+    (testing "accessing to read property name"
+      (is (= 10 (.getp oracle :NumIter))))
+    (testing "Setting property value"
+      (is (= 10.0 (.setp oracle :MaxRating 10))))
+    ))

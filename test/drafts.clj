@@ -43,4 +43,9 @@
     `(new ~(symbol constructor))))
 (macroexpand-1 '(new-generic-list System.Int32))
 
+(def props (-> (:model oracle) (.GetType)(.GetProperties)))
+(map (fn [prop] (-> (.Name prop) println)) props)
+
+(def prop (-> (:model oracle) (.GetType) (#(.GetProperty %1 "MaxRating"))))
+
 

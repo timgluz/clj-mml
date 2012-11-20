@@ -40,6 +40,15 @@
   (to-vect [this] "Turns results to native Clojure vector")
   (to-map [this] "Turns list of results to native Clojure map")
   )
+
+(defprotocol EvaluateProtocol
+  "Protocol that describe evaluation interface"
+  (measures [this] "Returns list of available evaluation measures")
+  (evaluate [this test-data] [this test-data training-dat] 
+            "Evaluates a predictor and returns map of metrics"))
+
+
+
 ;; macros  -----------------------------
 (defn build-setter-name [property]
   "Builds proper setter-name for C# objects"

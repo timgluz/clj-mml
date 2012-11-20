@@ -9,7 +9,8 @@
   (:import [MyMediaLite.RatingPrediction BiasedMatrixFactorization, BiPolarSlopeOne
                 CoClustering, Constant, EntityAverage,
                 FactorWiseMatrixFactorization, GlobalAverage, 
-                ItemAverage, ItemKNN, UserItemBaseline]))
+                ItemAverage, ItemKNN, UserItemBaseline]
+           [MyMediaLite.Eval Ratings]))
 
 (defn row2vect [row]
   [(.Item1 row) (.Item2 row)])
@@ -77,7 +78,18 @@
             (.GetValue prop (:model this)))
           (println "Property `" property "`isnot mutable.")
         ))
-      (println "Property: " property " dont exists."))))
+      (println "Property: " property " dont exists.")))
+  EvaluateProtocol
+  (measures [this] (set (map #(keyword %1) (Ratings/Measures))))
+  (evaluate [this test-data]
+    (evaluate this test-data nil))
+  (evaluate [this test-data training-data]
+    (->> 
+      (Ratings/Evaluate (:model this) test-data training-data)
+      (map (fn [row] {(keyword (.Key row)) (.Value row)}))
+      (apply merge)
+      ))
+  )
 
 (defn base-init
   "Base initiliazer, which will be extended by child namespaces.

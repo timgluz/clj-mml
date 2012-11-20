@@ -65,3 +65,17 @@
     (testing "Setting property value"
       (is (= 10.0 (.setp oracle :MaxRating 10))))
     ))
+
+(deftest recommender-evaluation
+  (let [configs {:model :UserItemBaseline, :training-data training-data}
+        oracle (ratingprediction/init configs)]
+    (.train oracle)
+    (testing "get possible evaluation metrics for given recommender"
+      (is (contains? (.measures oracle) :RMSE)))
+    (testing "calculating values for all evaluation metrics by using test-data"
+       (is (every? (.evaluate oracle test-data)
+                   (.measures oracle))))
+    (testing "calculating values for eval-metrics for given test and training-data"
+        (is (every? (.evaluate oracle test-data training-data)
+                    (.measures oracle))))
+    ))

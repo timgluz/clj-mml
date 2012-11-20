@@ -3,6 +3,7 @@
           '[clj-mml.io.read :as read])
 
 (def training-dt (read/ratingdata "data/u1.base"))
+(def test-dt (read/ratingdata "data/u1.test"))
 (def params {:model :UserItemBaseline})
 
 (def oracle (ratingprediction/init params))
@@ -48,4 +49,10 @@
 
 (def prop (-> (:model oracle) (.GetType) (#(.GetProperty %1 "MaxRating"))))
 
+(import '[MyMediaLite.Eval Ratings])
+
+(def values (->>
+            (Ratings/Evaluate (:model oracle) test-dt nil)
+            (map (fn [row] {(keyword (.Key row)) (.Value row)}))
+            (apply merge))) 
 

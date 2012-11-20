@@ -10,7 +10,7 @@
                 CoClustering, Constant, EntityAverage,
                 FactorWiseMatrixFactorization, GlobalAverage, 
                 ItemAverage, ItemKNN, UserItemBaseline]
-           [MyMediaLite.Eval Ratings]))
+           [MyMediaLite.Eval Ratings RatingsOnline RatingsCrossValidation]))
 
 (defn row2vect [row]
   [(.Item1 row) (.Item2 row)])
@@ -89,6 +89,21 @@
       (map (fn [row] {(keyword (.Key row)) (.Value row)}))
       (apply merge)
       ))
+  (crossvalidate [this] (crossvalidate this 5 false false))
+  (crossvalidate [this num-iter] (crossvalidate this num-iter false false))
+  (crossvalidate [this num-iter compute-fit]
+    (crossvalidate this num-iter compute-fit false))
+  (crossvalidate [this num-iter compute-fit verbose] 
+    (->>
+      (RatingsCrossValidation/DoCrossValidation (:model this) num-iter compute-fit verbose)
+      (map (fn [row] {(keyword (.Key row)) (.Value row)}))
+      (apply merge)))
+
+  (evaluate-online [this data]
+    (->>
+      (RatingsOnline/EvaluateOnline (:model this) data)
+      (map (fn [row] {(keyword (.Key row)) (.Value row)}))
+      (apply merge)))
   )
 
 (defn base-init

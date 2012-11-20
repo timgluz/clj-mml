@@ -45,8 +45,11 @@
   "Protocol that describe evaluation interface"
   (measures [this] "Returns list of available evaluation measures")
   (evaluate [this test-data] [this test-data training-dat] 
-            "Evaluates a predictor and returns map of metrics"))
-
+            "Evaluates a predictor and returns map of metrics")
+  (crossvalidate [this] [this num-folds] [this num-folds compute-fit]
+                 [this num-folds compute-fit verbose] 
+                 "Evaluates on the folds of a dataset splits")
+  (evaluate-online [this data] "Online evaluation for recommender"))
 
 
 ;; macros  -----------------------------

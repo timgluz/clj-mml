@@ -78,4 +78,14 @@
     (testing "calculating values for eval-metrics for given test and training-data"
         (is (every? (.evaluate oracle test-data training-data)
                     (.measures oracle))))
+
+    (testing "crossvalidation with all arguments"
+        (is (every? (.crossvalidate oracle 10 false false)
+                    (.measures oracle))))
+    (testing "crossvalidation without specifying any argument"
+        (is (every? (.crossvalidate oracle)
+                    (.measures oracle))))
+    (testing "online evaluation"
+        (is (every? (.evaluate-online oracle test-data)
+                    (.measures oracle))))
     ))

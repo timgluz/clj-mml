@@ -3,7 +3,7 @@
 It will be a ClojureCLR library for MyMediaLite, simple and fast recommender system.
 Visit their homepage: http://www.ismll.uni-hildesheim.de/mymedialite/index.html .
 
-Contact: @timgluz
+Contact: @timgluz [twitter](https://twitter.com/timgluz)|[gmail.com](timgluz+cljmml@gmail.com)
 
 
 ## Prerequirements
@@ -45,6 +45,11 @@ I expect that you  already have installed given tools&libraries:
 
  lein clr run -m clj-mml.core data/u1.base
  lein clr run data/u1.base
+
+
+## Wiki pages
+ * [main wiki page & usage](https://github.com/timgluz/clj-mml/wiki/CLJ-MML)
+ * [ratingprediction api & usage](https://github.com/timgluz/clj-mml/wiki/RatingPrediction) 
 
 
 ## Example usage:

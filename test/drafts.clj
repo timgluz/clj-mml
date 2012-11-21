@@ -56,3 +56,10 @@
             (map (fn [row] {(keyword (.Key row)) (.Value row)}))
             (apply merge))) 
 
+;; using itemrecommendation
+(require '[clj-mml.recommenders.itemrecommendation :as itemrecommendation])
+
+(def configs {:model :MostPopular})
+
+(def oracle (itemrecommendation/init configs))
+

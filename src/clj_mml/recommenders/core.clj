@@ -9,6 +9,20 @@
 (ns clj-mml.recommenders.core
   (:require [clojure.string :as string]))
 
+
+(defn tuple->map [tuples]
+  (->> tuples
+    (map (fn [row] {(keyword (.Key row)) (.Value row)}))
+    (apply merge)))
+
+(defn keyword->ucase [x]
+  (-> (name x) (string/upper-case) (keyword)))
+
+(defn row2vect [row]
+  [(.Item1 row) (.Item2 row)])
+
+(def not-nil? (comp not nil?))
+
 (defprotocol RecommenderProtocol
   "Generic protocol for simple recommenders"
   (can-predict? [this user-id item-id] "Checks whether a usefule prediction can be 
@@ -24,7 +38,7 @@
   (train [this] "Learn the model parameters of the recommender from the training data."))
 
 (defprotocol RatingPredictorProtocol
-  "Generic protocol for simple predictors"
+  "Generic protocol for rating predictors"
   (get-ratings [this] "returns ratings, which were used for last training")
   (set-ratings [this ratings] "sets rating-data for given predictor")
   (get-max-rating [this] "gets maximum rating of predictor")
@@ -32,6 +46,13 @@
   (get-data [this] "Wrapper function to unify data reading")
   (set-data [this ratings] "Wrapper function to unify data setting") 
 )
+
+(defprotocol ItemRecommenderProtocol
+  "Generic protocol for itemrecommenders"
+  (get-feedback [this] "returns feedbacks model is currently using")
+  (set-feedback [this feedback] "sets new feedbacks")
+  (get-data [this] "universal method name to access model data")
+  (set-data [this feedback] "universal method to set model's data"))
 
 (defprotocol ResultProtocol 
   "Protocol to handle results of recommendations"
@@ -50,6 +71,37 @@
                  [this num-folds compute-fit verbose] 
                  "Evaluates on the folds of a dataset splits")
   (evaluate-online [this data] "Online evaluation for recommender"))
+
+(defprotocol ItemEvaluateProtocol
+  "Protocol that describes evaluation interface for itemrecommenders."
+  (measures [this] "Returns list of available evaluation measures")
+  (evaluate [this test-data training-data]
+            [this test-data training-data test-users]
+            [this test-data training-data test-users candidate-items 
+             candidate-items-mode repeated-events n]
+            "Evaluates a predictor and returns map of metrics")
+  (crossvalidate [this num-folds test-users candidate-items]
+                 [this num-folds test-users candidate-items
+                  candidate-item-mode compute-fit verbose])
+  (evaluate-online [this test-data training-data test-users
+                    candidate-items candidate-item-mode])
+  )
+
+;; RECORDS --------------------------------------
+;;
+(defrecord RecommendationResults [rows]
+  ResultProtocol
+  (size [this] (count (:rows this)))
+  (nth-result [this row-nr] 
+    (row2vect
+      (nth (:rows this) row-nr)))
+  (to-vect [this] (map row2vect (seq (:rows this))))
+  (to-map [this] 
+    (reduce 
+        (fn [coll, row] 
+          (merge coll {(.Item1 row) (.Item2 row)}))
+          {} (seq (:rows this)))
+    ))
 
 
 ;; macros  -----------------------------

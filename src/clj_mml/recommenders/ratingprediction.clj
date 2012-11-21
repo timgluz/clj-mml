@@ -12,22 +12,6 @@
                 ItemAverage, ItemKNN, UserItemBaseline]
            [MyMediaLite.Eval Ratings RatingsOnline RatingsCrossValidation]))
 
-(defn row2vect [row]
-  [(.Item1 row) (.Item2 row)])
- 
-(defrecord RatingResults [rows]
-  ResultProtocol
-  (size [this] (count (:rows this)))
-  (nth-result [this row-nr] 
-    (row2vect
-      (nth (:rows this) row-nr)))
-  (to-vect [this] (map row2vect (seq (:rows this))))
-  (to-map [this] 
-    (reduce 
-        (fn [coll, row] 
-          (merge coll {(.Item1 row) (.Item2 row)}))
-          {} (seq (:rows this)))
-    ))
 
 (defrecord RatingRecommender [model configs]
   RecommenderProtocol
@@ -46,7 +30,7 @@
   (recommend [this user-id n ignored_items candidate_items] 
     (let [ignored_items (list->generic ignored_items)
           candidate_items (list->generic candidate_items)]
-      (->RatingResults  
+      (->RecommendationResults  
         (.Recommend (:model this) user-id n ignored_items candidate_items))
       ))
   (to-string [this] (.ToString (:model this)))
@@ -107,18 +91,16 @@
   )
 
 (defn base-init
-  "Base initiliazer, which will be extended by child namespaces.
-  Usage: 
-    (base-init (ItemAverage.))
-    (def init (partial base-init (ItemAverage.))) ;; in child namespaces
-  "
+  "Base init"
   ([Model] (map->RatingRecommender {:model Model}))
-  ([Model configs] 
-      (let [oracle (->RatingRecommender Model, configs)]
-         (when (contains? configs :training-data)
-            (.set-data oracle (:training-data configs)))
-        oracle
-      )))
+  ([Model config-map]
+   (let [oracle (->RatingRecommender Model config-map)
+         training-data (get config-map :training-data nil)]
+     (when (not-nil? training-data)
+       (.set-data oracle training-data))
+     oracle
+     ))
+  )
 
 (defmulti init :model)
 (defmethod init :BiasedMatrixFactorization  [configs]

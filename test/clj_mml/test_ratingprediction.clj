@@ -1,17 +1,15 @@
 (ns clj-mml.test-ratingprediction
-  (:use [clojure.test])
+  (:use [clojure.test]
+        [clj-mml.recommenders.core])
   (:require [clj-mml.recommenders.ratingprediction :as ratingprediction]
             [clj-mml.io.read :as read]))
 
-(def not-nil? (comp not nil?))
-(def contains-not? (comp not contains?))
 (def training-data (read/ratingdata "data/u1.base"))
 (def test-data (read/ratingdata "data/u1.test"))
 
 (deftest recommender-init
   (testing "creating new UserItemBaseline without data and settings"
-      (let [configs {:model :UserItemBaseline}
-            oracle (ratingprediction/init configs)]
+      (let [oracle (ratingprediction/init :UserItemBaseline)]
         (is (not-nil?
               (re-matches #"UserItemBaseline.*" (.to-string oracle))))
         (is (false? (.can-predict? oracle 1 1)))
@@ -22,21 +20,20 @@
         (is (true? (.can-predict? oracle 1 1)))
         ))
   (testing "initialize new recommender with training data"
-      (let [configs {:model :UserItemBaseline, :training-data training-data}
-            oracle (ratingprediction/init configs)]
-        (is (= 80000
-               (read/size (.get-data oracle))))
+      (let [oracle (ratingprediction/init :UserItemBaseline 
+                                          :training-data training-data)]
+        (is (= 80000 (read/size (.get-data oracle))))
         (is (true? (.can-predict? oracle 1 1)))
         )))
 
 
 (deftest recommender-recommend
-  (let [configs {:model :UserItemBaseline, :training-data training-data}
-        oracle (ratingprediction/init configs)]
-    (.train oracle)
+  (let [oracle (ratingprediction/init :UserItemBaseline :training-data training-data)
+        trained? (nil? (.train oracle))]
+    (testing "success of training process"
+      (is (not-nil? trained?)))
     (testing "recommending with limited results"
-      (is (= 5
-             (.size (.recommend oracle 1 5)))))
+      (is (= 5 (.size (.recommend oracle 1 5)))))
     (testing "recommending with ignored_items"
       (is (contains-not? 
             (.to-map (.recommend oracle 1 5 [169])) 
@@ -56,8 +53,7 @@
   ))
 
 (deftest recommender-properties
-  (let [configs {:model :UserItemBaseline}
-        oracle (ratingprediction/init configs)]
+  (let [oracle (ratingprediction/init :UserItemBaseline)]
     (testing "access to propertynames"
       (is (every? (.properties oracle) [:MaxRating :MinRating :NumIter])))
     (testing "accessing to read property name"
@@ -67,9 +63,10 @@
     ))
 
 (deftest recommender-evaluation
-  (let [configs {:model :UserItemBaseline, :training-data training-data}
-        oracle (ratingprediction/init configs)]
-    (.train oracle)
+  (let [oracle (ratingprediction/init :UserItemBaseline :training-data training-data)
+        trained? (.train oracle)]
+    (testing "success of training process"
+      (is (not-nil? trained?)))
     (testing "get possible evaluation metrics for given recommender"
       (is (contains? (.measures oracle) :RMSE)))
     (testing "calculating values for all evaluation metrics by using test-data"

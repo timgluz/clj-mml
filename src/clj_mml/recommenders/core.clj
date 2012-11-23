@@ -18,10 +18,19 @@
 (defn keyword->ucase [x]
   (-> (name x) (string/upper-case) (keyword)))
 
+(defn keyword->capitalize [x]
+  (-> (name x) (string/capitalize) (keyword)))
+
 (defn row2vect [row]
   [(.Item1 row) (.Item2 row)])
 
 (def not-nil? (comp not nil?))
+(def contains-not? (comp not contains?))
+
+(defmulti convert-type type)
+(defmethod convert-type System.Int64 [value] (uint value)) ;; compromiss for numiter
+(defmethod convert-type System.Double [value] (float value))
+(defmethod convert-type :default [value] value)
 
 (defprotocol RecommenderProtocol
   "Generic protocol for simple recommenders"
@@ -65,27 +74,22 @@
 (defprotocol EvaluateProtocol
   "Protocol that describe evaluation interface"
   (measures [this] "Returns list of available evaluation measures")
-  (evaluate [this test-data] [this test-data training-dat] 
-            "Evaluates a predictor and returns map of metrics")
-  (crossvalidate [this] [this num-folds] [this num-folds compute-fit]
-                 [this num-folds compute-fit verbose] 
-                 "Evaluates on the folds of a dataset splits")
-  (evaluate-online [this data] "Online evaluation for recommender"))
-
-(defprotocol ItemEvaluateProtocol
-  "Protocol that describes evaluation interface for itemrecommenders."
-  (measures [this] "Returns list of available evaluation measures")
-  (evaluate [this test-data training-data]
+  (evaluate [this test-data] [this test-data training-data]
             [this test-data training-data test-users]
+            [this test-data training-data test-users candidate-items]
+            [this test-data training-data test-users candidate-items candidate-items-mode]
             [this test-data training-data test-users candidate-items 
              candidate-items-mode repeated-events n]
             "Evaluates a predictor and returns map of metrics")
-  (crossvalidate [this num-folds test-users candidate-items]
+  (crossvalidate [this] [this num-folds] [this num-folds compute-fit]
+                 [this num-folds compute-fit verbose] 
                  [this num-folds test-users candidate-items
-                  candidate-item-mode compute-fit verbose])
-  (evaluate-online [this test-data training-data test-users
-                    candidate-items candidate-item-mode])
-  )
+                  candidate-item-mode compute-fit verbose]
+                 "Evaluates on the folds of a dataset splits")
+  (evaluate-online [this data] 
+                   [this test-data training-data test-users
+                    candidate-items candidate-item-mode]     
+                   "Online evaluation for recommender"))
 
 ;; RECORDS --------------------------------------
 ;;

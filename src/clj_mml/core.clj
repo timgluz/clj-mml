@@ -3,18 +3,20 @@
 
 (ns clj-mml.core
   (:require [clojure.string :as string]
-            [clj-mml.examples.ratingprediction :as ex])
+            [clj-mml.examples.ratingprediction :as ex1]
+            [clj-mml.examples.itemrecommendation :as ex2])
   (:gen-class))
 
 (defn -main [& args]
   "Runs examples "
-  (let [training-file (str (first args))
+  (let [
+        ;training-file (str (first args))
+        training-file "data/u1.base"
         test-file "data/u1.test"]
     (do
       (println (str "Using training file: `" training-file "`" ))
-      (ex/example training-file test-file)
-      ;(println (str "Recommendating item.1  for user.1"
-      ;              (example2/run training-file test-file 1 1)))
+      (ex1/run-example training-file test-file)
+      (ex2/run-example training-file test-file)
       )))
 
 (defn demo-run []

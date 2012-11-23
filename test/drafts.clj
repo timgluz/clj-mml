@@ -57,9 +57,20 @@
             (apply merge))) 
 
 ;; using itemrecommendation
-(require '[clj-mml.recommenders.itemrecommendation :as itemrecommendation])
 
-(def configs {:model :MostPopular})
+(require '[clj-mml.recommenders.itemrecommendation :as itemrecommendation]
+         '[clj-mml.io.read :as read])
 
-(def oracle (itemrecommendation/init configs))
+(def training-data (read/itemdata "data/u1.base"))
+(def test-data (read/itemdata "data/u1.test"))
+
+(def delphi (itemrecommendation/init :MostPopular))
+
+(def oracle (itemrecommendation/init :BPRLinear :training-data training-data))
+
+(->> 
+  (itemrecommendation/init :MostPopular)
+  (.to-string)
+  (re-matches #"MostPopular.*"))
+
 

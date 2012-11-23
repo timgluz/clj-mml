@@ -7,9 +7,13 @@
   (:refer-clojure :exclude [System.Random])
   (:use [clj-mml.recommenders.core])
   (:import [MyMediaLite.RatingPrediction BiasedMatrixFactorization, BiPolarSlopeOne
-                CoClustering, Constant, EntityAverage,
-                FactorWiseMatrixFactorization, GlobalAverage, 
-                ItemAverage, ItemKNN, UserItemBaseline]
+            CoClustering, Constant, EntityAverage, FactorWiseMatrixFactorization 
+            GlobalAverage, ItemAttributeKNN, ItemAverage, ItemKNN
+            LatentFeatureLogLinearModel, MatrixFactorization, NaiveBayes
+            SigmoidCombinedAsymmetricFactorModel, SigmoidItemAsymmetricFactorModel
+            SigmoidSVDPlusPlus, SigmoidUserAsymmetricFactorModel, SlopeOne 
+            SocialMF, SVDPlusPlus, TimeAwareBaseline, TimeAwareBaselineWithFrequencies
+            UserAttributeKNN, UserAverage, UserItemBaseline, UserKNN]
            [MyMediaLite.Eval Ratings RatingsOnline RatingsCrossValidation]))
 
 
@@ -55,12 +59,13 @@
   (setp [this property value]
     (if (contains? (properties this) property)
       (let [klass (-> (:model this)(.GetType))
-            prop (.GetProperty klass (name property))]
+            prop (.GetProperty klass (name property))
+            typed-value (convert-type value)]
         (if (true? (.CanWrite prop))
           (do 
-            (.SetValue prop (:model this) value nil)
+            (.SetValue prop (:model this) typed-value nil)
             (.GetValue prop (:model this)))
-          (println "Property `" property "`isnot mutable.")
+          (println "Property `" property "`is not mutable.")
         ))
       (println "Property: " property " dont exists.")))
   EvaluateProtocol
@@ -68,20 +73,15 @@
   (evaluate [this test-data]
     (evaluate this test-data nil))
   (evaluate [this test-data training-data]
-    (->> 
-      (Ratings/Evaluate (:model this) test-data training-data)
-      (map (fn [row] {(keyword (.Key row)) (.Value row)}))
-      (apply merge)
-      ))
+    (tuple->map
+      (Ratings/Evaluate (:model this) test-data training-data)))
   (crossvalidate [this] (crossvalidate this 5 false false))
   (crossvalidate [this num-iter] (crossvalidate this num-iter false false))
   (crossvalidate [this num-iter compute-fit]
     (crossvalidate this num-iter compute-fit false))
   (crossvalidate [this num-iter compute-fit verbose] 
-    (->>
-      (RatingsCrossValidation/DoCrossValidation (:model this) num-iter compute-fit verbose)
-      (map (fn [row] {(keyword (.Key row)) (.Value row)}))
-      (apply merge)))
+    (tuple->map
+      (RatingsCrossValidation/DoCrossValidation (:model this) num-iter compute-fit verbose)))
 
   (evaluate-online [this data]
     (->>
@@ -93,8 +93,9 @@
 (defn base-init
   "Base init"
   ([Model] (map->RatingRecommender {:model Model}))
-  ([Model config-map]
-   (let [oracle (->RatingRecommender Model config-map)
+  ([Model configs]
+   (let [config-map (apply hash-map configs)
+         oracle (base-init Model)
          training-data (get config-map :training-data nil)]
      (when (not-nil? training-data)
        (.set-data oracle training-data))
@@ -102,14 +103,58 @@
      ))
   )
 
-(defmulti init :model)
-(defmethod init :BiasedMatrixFactorization  [configs]
+(defmulti init (fn [x & _] (keyword x)))
+(defmethod init :BiasedMatrixFactorization  [model-name & configs]
   (base-init (BiasedMatrixFactorization.) configs))
-(defmethod init :BiPolarSlopeOne [configs]
+(defmethod init :BiPolarSlopeOne [model-name & configs]
   (base-init (BiPolarSlopeOne.) configs))
-(defmethod init :UserItemBaseline [configs]
+(defmethod init :CoClustering [model-name & configs]
+  (base-init (CoClustering.) configs))
+(defmethod init :Constant [model-name & configs]
+  (base-init (Constant.) configs))
+(defmethod init :FactorWiseMatrixFactorization [model-name & configs]
+  (base-init (FactorWiseMatrixFactorization.) configs))
+(defmethod init :GlobalAverage [model-name & configs]
+  (base-init (GlobalAverage.) configs))
+(defmethod init :ItemAttributeKNN [model-name & configs]
+  (base-init (ItemAttributeKNN.) configs))
+(defmethod init :ItemAverage [model-name & configs]
+  (base-init (ItemAverage.) configs))
+(defmethod init :ItemKNN [model-name & configs]
+  (base-init (ItemKNN.) configs))
+(defmethod init :LatentFeatureLogLinearModel [model-name & configs]
+  (base-init (LatentFeatureLogLinearModel.) configs))
+(defmethod init :MatrixFactorization [model-name & configs]
+  (base-init (MatrixFactorization.) configs))
+(defmethod init :NaiveBayes [model-name & configs]
+  (base-init (NaiveBayes.) configs))
+(defmethod init :SigmoidCombinedAsymmetricFactorModel [model-name & configs]
+  (base-init (SigmoidCombinedAsymmetricFactorModel.) configs))
+(defmethod init :SigmoidItemAsymmetricFactorModel [model-name & configs]
+  (base-init (SigmoidItemAsymmetricFactorModel.) configs))
+(defmethod init :SigmoidSVDPlusPlus [model-name & configs]
+  (base-init (SigmoidSVDPlusPlus.) configs))
+(defmethod init :SigmoidUserAsymmetricFactorModel [model-name & configs]
+  (base-init (SigmoidUserAsymmetricFactorModel.) configs))
+(defmethod init :SlopeOne [model-name & configs]
+  (base-init (SlopeOne.) configs))
+(defmethod init :SocialMF [model-name & configs]
+  (base-init (SocialMF.) configs))
+(defmethod init :SVDPlusPlus [model-name & configs]
+  (base-init (SVDPlusPlus.) configs))
+(defmethod init :TimeAwareBaseline [model-name & configs]
+  (base-init (TimeAwareBaseline.) configs))
+(defmethod init :TimeAwareBaselineWithFrequencies [model-name & configs]
+  (base-init (TimeAwareBaselineWithFrequencies.) configs))
+(defmethod init :UserAttributeKNN [model-name & configs]
+  (base-init (UserAttributeKNN.) configs))
+(defmethod init :UserAverage [model-name & configs]
+  (base-init (UserAverage.) configs))
+(defmethod init :UserItemBaseline [model-name & configs]
   (base-init (UserItemBaseline.) configs))
-(defmethod init :default [configs] 
-  (println "Ouch, you forgot something: " configs ))
+(defmethod init :UserKNN [model-name & configs]
+  (base-init (UserKNN.) configs))
+(defmethod init :default [model-name & configs] 
+  (println "Ouch, unknown model: " model-name))
 
 

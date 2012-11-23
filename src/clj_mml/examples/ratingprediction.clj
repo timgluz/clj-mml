@@ -2,7 +2,7 @@
   (:require [clj-mml.recommenders.ratingprediction :as ratingprediction]
             [clj-mml.io.read :as read]))
 
-(defn- demo [oracle test-data]
+(defn- demo [oracle training-data test-data]
   "Demo simple usage of recommender via ClojureCLR"
    (do
       (println "Example for:\n" (.to-string oracle)) 
@@ -16,16 +16,16 @@
       (println "10-Fold Crossvalidation metrics:" (.crossvalidate oracle 10)) 
     ))
 
-(defn example [training-file test-file]
+(defn run-example [training-file test-file]
   "Rating prediction from main documentation"
   (let [training-data (read/ratingdata training-file)
         test-data (read/ratingdata test-file)
-        params {:model :UserItemBaseline, :training-data training-data}
-        oracle (ratingprediction/init params)
-        delphi (ratingprediction/init (assoc params :model :BiasedMatrixFactorization))]
-      (demo oracle test-data)
-      (demo delphi test-data)
+        oracle (ratingprediction/init :UserItemBaseline :training-data training-data)
+        delphi (ratingprediction/init :BiasedMatrixFactorization
+                                      :training-data training-data)]
+      (demo oracle training-data test-data)
+      (demo delphi training-data test-data)
     ))
 
 (defn demo-usage []
-  (example "data/u1.base" "data/u1.test"))
+  (run-example "data/u1.base" "data/u1.test"))

@@ -61,8 +61,7 @@ I expect that you  already have installed given tools&libraries:
            '[clj-mml.io.read :as read])
    
  (def training-dt (read/ratingdata "data/u1.base"))
- (def params {:model :UserItemBaseline})
- (def oracle (ratingprediction/init params))
+ (def oracle (ratingprediction/init :UserItemBaseline))
 
  (read/size training-dt)
  (.to-string oracle)

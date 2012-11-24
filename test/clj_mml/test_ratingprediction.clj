@@ -24,7 +24,18 @@
                                           :training-data training-data)]
         (is (= 80000 (read/size (.get-data oracle))))
         (is (true? (.can-predict? oracle 1 1)))
-        )))
+        ))
+  (testing "initializing new recommender with configuration"
+    (let [oracle (ratingprediction/init :UserItemBaseline
+                                        :Ratings training-data
+                                        :MaxRating 12
+                                        :RegU 0.07)]
+      (is (= (read/size training-data)
+             (read/size (.getp oracle :Ratings))))
+      (is (= (float 12) (float (.getp oracle :MaxRating))))
+      (is (= (float 0.07) (float (.getp oracle :RegU))))
+     ))       
+  )
 
 
 (deftest recommender-recommend

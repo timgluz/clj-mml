@@ -66,7 +66,9 @@
 
 (def delphi (itemrecommendation/init :MostPopular))
 
-(def oracle (itemrecommendation/init :BPRLinear :training-data training-data))
+(def oracle (itemrecommendation/init :BPRLinear 
+                                     :training-data training-data
+                                     :LearnRate 0.03 :RegU 0.9))
 
 (->> 
   (itemrecommendation/init :MostPopular)

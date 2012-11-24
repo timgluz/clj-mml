@@ -20,14 +20,18 @@
              :UserKNN :WeightedBPRMF :Zero})
 
 
-
 (defrecord ItemRecommender [model configs]
+  ItemRecommenderProtocol
+  (get-feedback [this] (.Feedback (:model this)))
+  (set-feedback [this feedback] (set! (.Feedback (:model this)) feedback))
+
   RecommenderProtocol
+  (get-data [this] (get-feedback this))
+  (set-data [this feedback] (set-feedback this feedback))
   (load-model [this filename] (.LoadModel (:model this)))
-  (train [this] 
-    (do 
-      (.Train (:model this))
-      this))
+  (train [this] (do 
+    (.Train (:model this))
+    this))
   (can-predict? [this user-id item-id] 
     (.CanPredict (:model this) user-id item-id))
   (predict [this user-id item-id] 
@@ -42,11 +46,6 @@
         (.Recommend (:model this) user-id n ignored_items candidate_items))
       ))
   (to-string [this] (.ToString (:model this)))
-  ItemRecommenderProtocol
-  (get-feedback [this] (.Feedback (:model this)))
-  (set-feedback [this feedback] (set! (.Feedback (:model this)) feedback))
-  (get-data [this] (get-feedback this))
-  (set-data [this feedback] (set-feedback this feedback))
   ModelPropertyProtocol
   (properties [this] 
     (let [ props  (-> (:model this) (.GetType)(.GetProperties))]
@@ -70,6 +69,14 @@
           (println "Property `" property "`isnot mutable.")
         ))
       (println "Property: " property " dont exists.")))
+
+  (set-properties [this config-map]
+    (let [properties (.properties this)]
+     (->> 
+        (filter #(contains? properties (key %1)) config-map)
+        (map (fn [row] (.setp this (first row) (second row))))
+        (doall) ;;process lazy-lists
+       )))
   EvaluateProtocol
   (measures [this] (set (map #(keyword %1) (Items/Measures))))
   (evaluate [this test-data training-data]
@@ -120,9 +127,11 @@
      (do 
        (when (not-nil? training-data)
           (.set-data oracle training-data))
+       (.set-properties oracle config-map)
        oracle
        ))))
 
+;;TODO: refactor to macro + use models collection to check existance
 (defmulti init (fn [x & _] (keyword x)))
 (defmethod init :BPRLinear [model-name & configs]
   (base-init (BPRLinear.) configs))

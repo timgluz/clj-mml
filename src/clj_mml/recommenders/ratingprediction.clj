@@ -18,7 +18,14 @@
 
 
 (defrecord RatingRecommender [model configs]
+  RatingPredictorProtocol
+  (get-ratings [this] (.Ratings (:model this)))
+  (set-ratings [this ratings] (set! (.Ratings (:model this)) ratings))
+  (get-max-rating [this] (.MaxRating (:model this)))
+  (set-max-rating [this value] (.set_MaxRating (:model this) value))
   RecommenderProtocol
+  (get-data [this] (get-ratings this))
+  (set-data [this value] (set-ratings this value))
   (load-model [this filename] (.LoadModel (:model this)))
   (train [this] 
     (do 
@@ -38,13 +45,6 @@
         (.Recommend (:model this) user-id n ignored_items candidate_items))
       ))
   (to-string [this] (.ToString (:model this)))
-  RatingPredictorProtocol
-  (get-ratings [this] (.Ratings (:model this)))
-  (set-ratings [this ratings] (set! (.Ratings (:model this)) ratings))
-  (get-max-rating [this] (.MaxRating (:model this)))
-  (set-max-rating [this value] (.set_MaxRating (:model this) value))
-  (get-data [this] (get-ratings this))
-  (set-data [this value] (set-ratings this value))
   ModelPropertyProtocol
   (properties [this] 
     (let [ props  (-> (:model this) (.GetType)(.GetProperties))]
@@ -68,7 +68,14 @@
           (println "Property `" property "`is not mutable.")
         ))
       (println "Property: " property " dont exists.")))
-  EvaluateProtocol
+  (set-properties [this config-map]
+    (let [properties (.properties this)]
+     (->> 
+       (filter #(contains? properties (key %1)) config-map)
+       (map (fn [row] (.setp this (first row) (second row))))
+       (doall) ;;run lazy-lists
+       )))
+ EvaluateProtocol
   (measures [this] (set (map #(keyword %1) (Ratings/Measures))))
   (evaluate [this test-data]
     (evaluate this test-data nil))
@@ -99,10 +106,11 @@
          training-data (get config-map :training-data nil)]
      (when (not-nil? training-data)
        (.set-data oracle training-data))
+     (.set-properties oracle config-map)
      oracle
-     ))
-  )
+     )))
 
+;;TODO: refactor it
 (defmulti init (fn [x & _] (keyword x)))
 (defmethod init :BiasedMatrixFactorization  [model-name & configs]
   (base-init (BiasedMatrixFactorization.) configs))

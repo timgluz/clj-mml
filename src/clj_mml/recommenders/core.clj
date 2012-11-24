@@ -28,12 +28,15 @@
 (def contains-not? (comp not contains?))
 
 (defmulti convert-type type)
-(defmethod convert-type System.Int64 [value] (uint value)) ;; compromiss for numiter
+(defmethod convert-type System.Int64 [value] (int value)) ;; compromiss for numiter
 (defmethod convert-type System.Double [value] (float value))
 (defmethod convert-type :default [value] value)
 
 (defprotocol RecommenderProtocol
   "Generic protocol for simple recommenders"
+  (get-data [this] "universal method name to access model data")
+  (set-data [this feedback] "universal method to set model's data")
+
   (can-predict? [this user-id item-id] "Checks whether a usefule prediction can be 
                                        made for a given user-item combination")
   (load-model [this filename] "Get the model parameters from file")
@@ -51,18 +54,12 @@
   (get-ratings [this] "returns ratings, which were used for last training")
   (set-ratings [this ratings] "sets rating-data for given predictor")
   (get-max-rating [this] "gets maximum rating of predictor")
-  (set-max-rating [this value] "sets maximum rating of predictor")
-  (get-data [this] "Wrapper function to unify data reading")
-  (set-data [this ratings] "Wrapper function to unify data setting") 
-)
+  (set-max-rating [this value] "sets maximum rating of predictor"))
 
 (defprotocol ItemRecommenderProtocol
   "Generic protocol for itemrecommenders"
   (get-feedback [this] "returns feedbacks model is currently using")
-  (set-feedback [this feedback] "sets new feedbacks")
-  (get-data [this] "universal method name to access model data")
-  (set-data [this feedback] "universal method to set model's data"))
-
+  (set-feedback [this feedback] "sets new feedbacks"))
 (defprotocol ResultProtocol 
   "Protocol to handle results of recommendations"
   (size [this] "returns count of results")
@@ -131,7 +128,7 @@
   (properties [this] "Returns set of possible properties")
   (getp [this property] "Access to models properties")
   (setp [this property value] "Set value of public property.")
-  ;(- [this property] [this property value] "get/setters shorthand notation")
+  (set-properties [this config-map] "Initialize bunch of properties once")
   )
 
 (defn new-generic-list []

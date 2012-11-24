@@ -28,6 +28,15 @@
       (is (= (read/size training-data)
              (read/size (.get-data delphi))))
       ))
+  (testing "creating new model and configure model with initial configuration"
+    (let [oracle (itemrecommendation/init :BPRMF :training-data training-data
+                                          :LearnRate 0.03
+                                          :MaxUserID 50
+                                          :RegU 0.9)]
+      (is (= (float (.getp oracle :LearnRate)) (float 0.03)))
+      (is (= (int (.getp oracle :MaxUserID)) 50))
+      (is (= (float (.getp oracle :RegU)) (float 0.9)))
+      ))
   )
 
 (deftest recommender-properties
@@ -39,7 +48,7 @@
         (is (= (read/size training-data)
                (read/size (.getp oracle :Feedback)))))
     (testing "model setters"
-        (is (= 10 (.setp oracle :NumIter 10)))
+        (is (= 10 (.setp oracle :NumIter (uint 10))))
         (is (== (convert-type 0.1) 
                (.setp oracle :LearnRate 0.1))))
     ))

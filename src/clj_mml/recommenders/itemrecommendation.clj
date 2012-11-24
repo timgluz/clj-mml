@@ -14,10 +14,10 @@
            [MyMediaLite.Eval Items, ItemsCrossValidation, ItemsOnline,
             CandidateItems, RepeatedEvents]))
 
-(def models #{:BPRLinear :BPRMF :CLiMF :ItemAttributeKNN :ItemAttributeSVM
-              :ItemKNN :MostPopular :MostPopularByAttributes 
-              :MultiCoreBPRMF :SoftMarginRankingMF :UserAttributeKNN
-             :UserKNN :WeightedBPRMF :Zero})
+(def models #{:BPRLinear, :BPRMF, :CLiMF :ItemKNN, :ItemAttributeKNN, 
+              :ItemAttributeSVM, :MostPopular :MostPopularByAttributes, 
+              :MultiCoreBPRMF, :SoftMarginRankingMF :UserAttributeKNN, 
+              :UserKNN, :WRMF, :WeightedBPRMF, :Zero})
 
 
 (defrecord ItemRecommender [model configs]

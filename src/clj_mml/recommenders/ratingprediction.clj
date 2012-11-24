@@ -16,6 +16,14 @@
             UserAttributeKNN, UserAverage, UserItemBaseline, UserKNN]
            [MyMediaLite.Eval Ratings RatingsOnline RatingsCrossValidation]))
 
+(def models #{:BiasedMatrixFactorization, :BiPolarSlopeOne
+            :CoClustering, :Constant, :EntityAverage, :FactorWiseMatrixFactorization 
+            :GlobalAverage, :ItemAttributeKNN, :ItemAverage, :ItemKNN
+            :LatentFeatureLogLinearModel, :MatrixFactorization, :NaiveBayes
+            :SigmoidCombinedAsymmetricFactorModel, :SigmoidItemAsymmetricFactorModel
+            :SigmoidSVDPlusPlus, :SigmoidUserAsymmetricFactorModel, :SlopeOne 
+            :SocialMF, :SVDPlusPlus, :TimeAwareBaseline, :TimeAwareBaselineWithFrequencies
+            :UserAttributeKNN, :UserAverage, :UserItemBaseline, :UserKNN})
 
 (defrecord RatingRecommender [model configs]
   RatingPredictorProtocol

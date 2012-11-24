@@ -49,7 +49,8 @@ I expect that you  already have installed given tools&libraries:
 
 ## Wiki pages
  * [main wiki page & usage](https://github.com/timgluz/clj-mml/wiki/CLJ-MML)
- * [ratingprediction api & usage](https://github.com/timgluz/clj-mml/wiki/RatingPrediction) 
+ * [ratingprediction api & usage](https://github.com/timgluz/clj-mml/wiki/RatingPrediction)
+ * [itemrecommendation api](https://github.com/timgluz/clj-mml/wiki/itemrecommendation)
 
 
 ## Example usage:

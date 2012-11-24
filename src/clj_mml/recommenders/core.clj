@@ -46,8 +46,7 @@
              [this user-id n ignored_items candidate_items]
              "Recommends items for a given user.")
   (save-model [this filename] "Save the model parameters to a file.")
-  (to-string [this] "returns string representation of the recommender")
-  (train [this] "Learn the model parameters of the recommender from the training data."))
+  (train [this] [this training-data] "Learn the model parameters of the recommender from the training data."))
 
 (defprotocol RatingPredictorProtocol
   "Generic protocol for rating predictors"
@@ -88,6 +87,16 @@
                     candidate-items candidate-item-mode]     
                    "Online evaluation for recommender"))
 
+(defprotocol ModelPropertyProtocol 
+  "Protocol that handles get/setters of given model"
+  (to-string [this] "returns string representation of the recommender")
+  (properties [this] "Returns set of possible properties")
+  (getp [this property] "Access to models properties")
+  (setp [this property value] "Set value of public property.")
+  (get-properties [this] "Returns current property map")
+  (set-properties [this config-map] "Initialize bunch of properties once")
+  )
+
 ;; RECORDS --------------------------------------
 ;;
 (defrecord RecommendationResults [rows]
@@ -123,14 +132,6 @@
   `(~(build-getter-name property) ~model))
 
 ;(macroexpand-1 '(get-property "model" :MaxThreads))
-(defprotocol ModelPropertyProtocol 
-  "Protocol that handles get/setters of given model"
-  (properties [this] "Returns set of possible properties")
-  (getp [this property] "Access to models properties")
-  (setp [this property value] "Set value of public property.")
-  (set-properties [this config-map] "Initialize bunch of properties once")
-  )
-
 (defn new-generic-list []
   (let [lst (|System.Collections.Generic.List`1[System.Int32]|.)]
     lst))

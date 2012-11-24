@@ -31,6 +31,10 @@
     (do 
       (.Train (:model this))
       this))
+  (train [this training-data]
+    (do
+      (.set-data this training-data)
+      (.train this)))
   (can-predict? [this user-id item-id] 
     (.CanPredict (:model this) user-id item-id))
   (predict [this user-id item-id] 
@@ -44,8 +48,8 @@
       (->RecommendationResults  
         (.Recommend (:model this) user-id n ignored_items candidate_items))
       ))
-  (to-string [this] (.ToString (:model this)))
   ModelPropertyProtocol
+  (to-string [this] (.ToString (:model this)))
   (properties [this] 
     (let [ props  (-> (:model this) (.GetType)(.GetProperties))]
       (set 
@@ -67,7 +71,17 @@
             (.GetValue prop (:model this)))
           (println "Property `" property "`is not mutable.")
         ))
-      (println "Property: " property " dont exists.")))
+        (println "Property: " property " dont exists.")))
+    (get-properties [this]
+      (->> 
+        (.properties this)
+        (map (fn [prop] 
+               (try
+                 {prop (.getp this prop)}
+                 (catch Exception e
+                   {prop nil}))))
+        (apply merge)
+       ))
   (set-properties [this config-map]
     (let [properties (.properties this)]
      (->> 

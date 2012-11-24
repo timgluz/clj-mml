@@ -32,6 +32,10 @@
   (train [this] (do 
     (.Train (:model this))
     this))
+  (train [this training-data]
+    (do 
+      (.set-data this training-data)
+      (.train this)))
   (can-predict? [this user-id item-id] 
     (.CanPredict (:model this) user-id item-id))
   (predict [this user-id item-id] 
@@ -45,8 +49,8 @@
       (->RecommendationResults  
         (.Recommend (:model this) user-id n ignored_items candidate_items))
       ))
-  (to-string [this] (.ToString (:model this)))
   ModelPropertyProtocol
+  (to-string [this] (.ToString (:model this)))
   (properties [this] 
     (let [ props  (-> (:model this) (.GetType)(.GetProperties))]
       (set 
@@ -77,7 +81,17 @@
         (map (fn [row] (.setp this (first row) (second row))))
         (doall) ;;process lazy-lists
        )))
-  EvaluateProtocol
+  (get-properties [this]
+    (->> 
+      (.properties this)
+      (map (fn [prop] 
+             (try
+               {prop (.getp this prop)}
+               (catch Exception e
+                 {prop nil}))))
+      (apply merge)
+     ))
+ EvaluateProtocol
   (measures [this] (set (map #(keyword %1) (Items/Measures))))
   (evaluate [this test-data training-data]
     (evaluate this test-data training-data nil nil :overlap :no -1))

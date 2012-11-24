@@ -4,9 +4,8 @@
 
 (def training-dt (read/ratingdata "data/u1.base"))
 (def test-dt (read/ratingdata "data/u1.test"))
-(def params {:model :UserItemBaseline})
 
-(def oracle (ratingprediction/init params))
+(def oracle (ratingprediction/init :UserAverage))
 
 (read/size training-dt)
 (.to-string oracle)
@@ -26,6 +25,17 @@
 
 (reduce (fn [coll, row] (merge coll {(first row) (rest row)}))
         {}, [[:a 1][:b 2]])
+
+(def d (->> 
+  (.properties oracle)
+  (map (fn [prop] 
+         (try
+           {prop (.getp oracle prop)}
+           (catch Exception e 
+              {prop :requires-argument})
+           )))
+  doall
+  ))
 
 ;;or use original method names
 (.set-ratings oracle training-dt)

@@ -26,7 +26,7 @@
 (reduce (fn [coll, row] (merge coll {(first row) (rest row)}))
         {}, [[:a 1][:b 2]])
 
-(def d (->> 
+(->> 
   (.properties oracle)
   (map (fn [prop] 
          (try
@@ -34,8 +34,8 @@
            (catch Exception e 
               {prop :requires-argument})
            )))
-  doall
-  ))
+  (apply merge)
+  )
 
 ;;or use original method names
 (.set-ratings oracle training-dt)
@@ -85,4 +85,21 @@
   (.to-string)
   (re-matches #"MostPopular.*"))
 
+(use '[clj-mml.recommenders.core])
+(import '[MyMediaLite.ItemRecommendation MostPopular])
 
+(defn base-init [model configs]
+  (println (.ToString model))
+  (println configs))
+
+(def models #{:MostPopular})
+
+(defmacro init [class-name & configs]
+  (if (true? (-> (name class-name) symbol resolve boolean))
+      `(base-init  (new ~(-> class-name name symbol)) 
+                  (apply hash-map ~(vec configs)))
+      `(println "Cant find such model: " ~class-name)
+      ))
+
+(macroexpand-1 '(init :MostPopular :training-data "data/u1.base"))
+(macroexpand-1 '(init :Nok :bull :shit))

@@ -131,52 +131,26 @@
           test-users candidate-items candidate-item-mode))))
   )
 
-(defn base-init
+(defmacro init-new-model [model-name]
+  (let [sym (gensym)]
+    `(let [~sym (new ~(symbol (name model-name)))]
+       ~sym)))
+
+(macroexpand-1 '(init-new-model :Zero))
+
+(defn init
   "Base init"
-  ([Model] (map->ItemRecommender {:model Model}))
-  ([Model configs]
+  ([model-name] 
+    (when (contains? models model-name)
+      (let [model (init-new-model model-name)]
+        (map->ItemRecommender {:model model}))))
+  ([model-name & configs]
    (let [config-map (apply hash-map configs)
-         oracle (base-init Model)
+         oracle (init model-name)
          training-data (get config-map :training-data nil)]
-     (do 
-       (when (not-nil? training-data)
-          (.set-data oracle training-data))
+     (when (not-nil? oracle)
+       (when (not-nil? training-data) (.set-data oracle training-data))
        (.set-properties oracle config-map)
        oracle
        ))))
-
-;;TODO: refactor to macro + use models collection to check existance
-(defmulti init (fn [x & _] (keyword x)))
-(defmethod init :BPRLinear [model-name & configs]
-  (base-init (BPRLinear.) configs))
-(defmethod init :BPRMF [model-name & configs]
-  (base-init (BPRMF. ) configs))
-(defmethod init :CLiMF [model-name & configs]
-  (base-init (CLiMF. ) configs))
-(defmethod init :ItemAttributeKNN [model-name & configs]
-  (base-init (ItemAttributeKNN.) configs))
-(defmethod init :ItemAttributeSVM [model-name & configs]
-  (base-init (ItemAttributeSVM.) configs))
-(defmethod init :ItemKNN [model-name & configs]
-  (base-init (ItemKNN.) configs))
-(defmethod init :MostPopular [model-name & configs]
-  (base-init (MostPopular.) configs))
-(defmethod init :MostPopularByAttributes [model-name & configs]
-  (base-init (MostPopularByAttributes.) configs))
-(defmethod init :MultiCoreBPRMF [model-name & configs]
-  (base-init (MultiCoreBPRMF.) configs))
-(defmethod init :SoftMarginRankingMF [model-name & configs]
-  (base-init (SoftMarginRankingMF.) configs))
-(defmethod init :UserAttributeKNN [model-name & configs]
-  (base-init (UserAttributeKNN.) configs))
-(defmethod init :UserKNN [model-name & configs]
-  (base-init (UserKNN.) configs))
-(defmethod init :WeightedBPRMF [model-name & configs]
-  (base-init (WeightedBPRMF.) configs))
-(defmethod init :WRMF [model-name & configs]
-  (base-init (WRMF.) configs))
-(defmethod init :Zero [model-name & configs]
-  (base-init (Zero.) configs))
-(defmethod init :default [model-name & configs]
-  (println "Ouch, you forgot something: ", configs))
 

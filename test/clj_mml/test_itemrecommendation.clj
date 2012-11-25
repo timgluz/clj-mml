@@ -6,13 +6,14 @@
 
 (def training-data (read/itemdata "data/u1.base"))
 (def test-data (read/itemdata "data/u1.base"))
+(def models itemrecommendation/models)
 
 (defn match-model-by-name [model-type]
-  (let [name-pattern (re-pattern (format "%s.*" (name model-type)))]
-  (->>
-    (itemrecommendation/init model-type)
-    (.to-string)
-    (re-matches name-pattern))
+  (let [name-pattern (re-pattern (format "%s.*" (name model-type)))
+        oracle (itemrecommendation/init model-type)]
+  (if (not-nil? (:model oracle))
+      (re-matches name-pattern (.to-string oracle))
+      nil)
   ))
 
 (deftest recommender-init 

@@ -34,19 +34,15 @@
 
 (defprotocol RecommenderProtocol
   "Generic protocol for simple recommenders"
-  (get-data [this] "universal method name to access model data")
-  (set-data [this feedback] "universal method to set model's data")
-
   (can-predict? [this user-id item-id] "Checks whether a usefule prediction can be 
                                        made for a given user-item combination")
   (load-model [this filename] "Get the model parameters from file")
   (predict [this user-id item-id] "Predict rating or score for a given user-item 
                               combination")
-  (recommend [this user-id] [this user-id n] [this user-id n ignored_items]
-             [this user-id n ignored_items candidate_items]
+  (recommend [this user-id n ignored_items candidate_items]
              "Recommends items for a given user.")
   (save-model [this filename] "Save the model parameters to a file.")
-  (train [this] [this training-data] "Learn the model parameters of the recommender from the training data."))
+  (train [this] "Learn the model parameters of the recommender from the training data."))
 
 (defprotocol RatingPredictorProtocol
   "Generic protocol for rating predictors"
@@ -86,6 +82,11 @@
                    [this test-data training-data test-users
                     candidate-items candidate-item-mode]     
                    "Online evaluation for recommender"))
+
+(defprotocol ModelDataProtocol
+  "Protocol that unifies data reading and initialization for different models"
+  (get-data [this] "get models' dataset")
+  (set-data [this dataset] "sets models' dataset"))
 
 (defprotocol ModelPropertyProtocol 
   "Protocol that handles get/setters of given model"
@@ -146,3 +147,6 @@
     generic-coll
     ))
 
+; -- LOAD HELPERS--------------------------------------------------------------
+
+(load "core_methods")

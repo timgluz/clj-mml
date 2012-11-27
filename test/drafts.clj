@@ -76,6 +76,17 @@
 
 (def delphi (itemrecommendation/init :MostPopular))
 
+(defprotocol P1 (p [this] ""))
+(defprotocol P2 (t [this] ""))
+(deftype T []
+  P1 
+  (p [this] (println "from p.")))
+
+(extend T 
+  P2 {:t (fn [this] (println "from t."))})
+
+(def p (T.))
+
 (def oracle (itemrecommendation/init :BPRLinear 
                                      :training-data training-data
                                      :LearnRate 0.03 :RegU 0.9))

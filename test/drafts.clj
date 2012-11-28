@@ -85,4 +85,9 @@
   (.to-string)
   (re-matches #"MostPopular.*"))
 
+(import '[MyMediaLite.Data PosOnlyFeedback])
+(import '[MyMediaLite.Data.PosOnlyFeedback])
+(import '[MyMediaLite.DataType SparseBooleanMatrix])
+
+(|MyMediaLite.Data.PosOnlyFeedback`1[MyMediaLite.DataType.SparseBooleanMatrix]|.)
 

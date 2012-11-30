@@ -4,7 +4,7 @@
 ;
 ;------------------------------------------------------------------------------
 
-(assembly-load-file "lib/mymedialite/MyMediaLite.dll")
+(assembly-load-with-partial-name "MyMediaLite")
 
 (ns clj-mml.recommenders.core
   (:require [clojure.string :as string]))

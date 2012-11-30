@@ -1,6 +1,3 @@
-
-(assembly-load-file "lib/mymedialite/MyMediaLite.dll")
-
 (ns clj-mml.core
   (:require [clojure.string :as string]
             [clj-mml.examples.ratingprediction :as ex1]

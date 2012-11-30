@@ -82,6 +82,11 @@ I expect that you  already have installed given tools&libraries:
 
 ```
 
+## Usage on own project
+ 
+Check out [Starter-MML](https://github.com/timgluz/starter-mml) to fasten up starting new project. 
+
+
 ## License
 
 Copyright © 2012 TimGluz

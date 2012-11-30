@@ -3,7 +3,7 @@
 It will be a ClojureCLR library for MyMediaLite, simple and fast recommender system.
 Visit their homepage: http://www.ismll.uni-hildesheim.de/mymedialite/index.html .
 
-Contact: @timgluz [twitter](https://twitter.com/timgluz)|[gmail.com](timgluz+cljmml@gmail.com)
+Contact: @timgluz [twitter](https://twitter.com/timgluz) or just send e-mail[gmail.com](timgluz+cljmml@gmail.com)
 
 
 ## Prerequirements
@@ -84,7 +84,7 @@ I expect that you  already have installed given tools&libraries:
 
 ## Usage on own project
  
-Check out [Starter-MML](https://github.com/timgluz/starter-mml) to fasten up starting new project. 
+Check out [Starter-MML](https://github.com/timgluz/starter-cljmml) to fasten up starting new project. 
 
 
 ## License

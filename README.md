@@ -57,42 +57,28 @@ I expect that you  already have installed given tools&libraries:
 
 ```Clojure
 
- ;example usage on REPL
- (require  '[clj-mml.recommenders.ratingprediction :as ratingprediction]
-           '[clj-mml.io.read :as read])
-   
- (def training-dt (read/ratingdata "data/u1.base"))
- (def oracle (ratingprediction/init :UserItemBaseline))
+(ns clj-mml.examples.sugarexample
+  (:require [clj-mml.recommenders.itemrecommendation :as itemrecommendation]
+            [clj-mml.recommenders.ratingprediction :as ratingprediction])
+  (:use [clj-mml.recommenders.recommender]))
 
- (read/size training-dt)
- (.to-string oracle)
- ;;can we can predict without data?
- (.can-predict? oracle 1 1)
- ;; initialize rating data
- (.set-data oracle training-dt)
- (.get-data oracle)
- (.can-predict? oracle 1 1) 
-  
- (.train oracle)
- 
- ;;or manipulate ratings via original names
- (.set-ratings oracle training-dt)
- (= (read/size (.get-ratings oracle))
-    (read/size training-dt))
+(def training-file "data/u1.base")
+(def test-file "data/u1.test")
 
- ;; recommendations
- (def results (.recommend oracle 1 5)) ;; just return 5recommendation for user.1
- (.size results)
- (.to-vect results) ;; transform results to Clojure vector
- (.to-map results) ;; to Clojure hash-map
+(def oracle (itemrecommendation/init :MostPopular))
+(def delphi (ratingprediction/init :UserAverage))
 
- (.Item1  (first (:rows results))) ;; raw access to results tuple 
+;;train recommenders
+(train oracle training-file)
+(train delphi [[1 1 4.0][1 2 5.0][1 3 4.0]])
 
- ;; or access methods & values via raw CLR interop:
- (.ToString (:model oracle))
- (.get_MaxRating (:model oracle)) 
- (.set_MaxRating (:model oracle) 10)
- (.get_MaxRating (:model oracle))
+(can-predict? delphi 1 1)
+(predict delphi 1 1)
+(recommend oracle 1 -1 [100 101] [100 101 102 103 104 105])
+
+(evaluate oracle test-file training-file)
+(evaluate delphi test-file training-file)
+
 
 ```
 

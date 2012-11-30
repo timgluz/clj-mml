@@ -8,14 +8,6 @@
   :plugins [[lein-clr "0.2.0"]]
   :aot [clj-mml]
   :main clj-mml.core
-;  :clr {:main-cmd    ["mono" [CLJCLR14_40 "Clojure.Main.exe"]]
-;        :compile-cmd ["mono" [CLJCLR14_40 "Clojure.Compile.exe"]]
-        ;:target-path "target/clr"
-;        :load-paths  ["lib/mymedialite"]
-;        }
-  :git-dependencies [["https://github.com/timgluz/clj-mml.git"]]
-  :source-paths ["src/" ".lein-git-deps/clj-mml/src/"]
- 
   :clr {:cmd-templates  {:clj-exe   ["mono" [CLJCLR14_40 %1]]
                          :clj-dep   ["mono" ["target/clr/clj/Debug 4.0" %1]]
                          :clj-url   "https://github.com/downloads/clojure/clojure-clr/clojure-clr-1.4.1-Debug-4.0.zip"

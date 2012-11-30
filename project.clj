@@ -1,6 +1,6 @@
-(defproject clj-mml "0.1.0-SNAPSHOT"
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
+(defproject clj-mml "org.clojars.timgluz/0.1.0"
+  :description "ClojureCLR wrapper for MyMediaLite recommendation systems library."
+  :url "https://github.com/timgluz/clj-mml"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies []
